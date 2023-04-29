@@ -3,6 +3,40 @@
 #include <vector>
 using namespace std;
 
+
+class PaymentInformation {
+private:
+    string ccnum;
+public:
+    PaymentInformation(string ccNum);
+    PaymentInformation();
+    ~PaymentInformation();
+    void setccnum(string num);
+    string getccnum();
+};
+
+class ShippingInformation {
+private:
+    string address;
+public:
+    ShippingInformation(string address);
+    ShippingInformation();
+    ~ShippingInformation();
+    void setAddress(string addy);
+    string getAddress();
+};
+
+class History {
+private:
+    vector<int> history;
+public:
+    History();
+    ~History();
+    void addItem(int item);
+    vector<int> getHistory();
+    void viewHistory();
+};
+
 class User
 {
 private:
@@ -27,39 +61,6 @@ public:
     ShippingInformation getShippingInfo();
     History getHistory();
     void deleteUser();
-};
-
-class PaymentInformation {
-private:
-    int ccnum;
-public:
-    PaymentInformation(int ccNum);
-    PaymentInformation();
-    ~PaymentInformation();
-    void setccnum(int num);
-    int getccnum();
-};
-
-class ShippingInformation {
-private:
-    string address;
-public:
-    ShippingInformation(string address);
-    ShippingInformation();
-    ~ShippingInformation();
-    void setAddress(string addy);
-    string getAddress();
-};
-
-class History {
-private:
-    vector<int> history;
-public:
-    History();
-    ~History();
-    void addItem(int item);
-    vector<int> getHistory();
-    void viewHistory();
 };
 
 User::User(int Id, string Name, PaymentInformation PaymentInfo, ShippingInformation shippingInfo, History history) {
@@ -118,19 +119,19 @@ void User::deleteUser() {
     deleted = true;
 }
 
-PaymentInformation::PaymentInformation(int ccNum) {
+PaymentInformation::PaymentInformation(string ccNum) {
     this->ccnum = ccNum;
 }
 
 PaymentInformation::PaymentInformation() {
-    ccnum = 0000000000000000;
+    ccnum = "0000000000000000";
 }
 PaymentInformation::~PaymentInformation() {
 }
-void PaymentInformation::setccnum(int num) {
+void PaymentInformation::setccnum(string num) {
     this->ccnum = num;
 }
-int PaymentInformation::getccnum() {
+string PaymentInformation::getccnum() {
     return ccnum;
 }
 
