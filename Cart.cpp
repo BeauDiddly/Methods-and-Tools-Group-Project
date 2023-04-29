@@ -9,6 +9,7 @@ private:
     vector<int> Items;
 public:
     Cart(int user, vector<int> items);
+    Cart();
     ~Cart();
     void setItems(vector<int> name);
     void setUser(int id);
@@ -23,6 +24,10 @@ public:
 Cart::Cart(int user, vector<int> items) {
     this->User = user;
     this->Items = items;
+}
+
+Cart::Cart() {
+    User = 0;
 }
 
 Cart::~Cart() {

@@ -8,6 +8,7 @@ private:
     int category, id, count;
 public:
     Item(string name, int category, int id, int count);
+    Item();
     ~Item();
     void setName(string name);
     void setId(int id);
@@ -25,6 +26,13 @@ Item::Item(string name, int category, int id, int count)
     this->category = category;
     this->id = id;
     this->count = count;
+}
+
+Item::Item() {
+    name = "N/A";
+    category = 0;
+    id = 0;
+    count = 0;
 }
 
 Item::~Item()

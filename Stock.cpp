@@ -8,6 +8,7 @@ private:
     vector<int> Items;
 public:
     Stock(vector<int> items);
+    Stock();
     ~Stock();
     void setItems(vector<int> name);
     vector<int> getItems();
@@ -15,6 +16,10 @@ public:
 
 Stock::Stock(vector<int> items) {
     this->Items = items;
+}
+
+Stock::Stock() {
+    
 }
 
 Stock::~Stock() {
