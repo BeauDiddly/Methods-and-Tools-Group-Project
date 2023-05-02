@@ -19,7 +19,19 @@ public:
     void removeFromCart(int item);
     void emptyCart();
     void viewCart();
+    void saveToFile();
 };
+
+void Cart::saveToFile() {
+    ofstream file_obj;
+    file_obj.open("Cart.dat", ios::app);
+    file_obj << User << ",";
+    for (size_t i = 0; i < Items.size(); i++)
+    {
+        file_obj << Items[i] << ",";
+    }
+    file_obj << "\n";
+}
 
 Cart::Cart(int user, vector<int> items) {
     this->User = user;

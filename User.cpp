@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstring>
 using namespace std;
 
 
@@ -13,6 +14,7 @@ public:
     ~PaymentInformation();
     void setccnum(string num);
     string getccnum();
+    void sendToFile();
 };
 
 class ShippingInformation {
@@ -40,7 +42,6 @@ public:
 class User
 {
 private:
-    bool deleted;
     int id;
     string name;
     PaymentInformation paymentInfo;
@@ -60,7 +61,7 @@ public:
     PaymentInformation getPaymentInfo();
     ShippingInformation getShippingInfo();
     History getHistory();
-    void deleteUser();
+    void sendToFile();
 };
 
 User::User(int Id, string Name, PaymentInformation PaymentInfo, ShippingInformation shippingInfo, History history) {
@@ -69,7 +70,6 @@ User::User(int Id, string Name, PaymentInformation PaymentInfo, ShippingInformat
     this->paymentInfo = PaymentInfo;
     this->shippingInfo = shippingInfo;
     this->history = history;
-    deleted = false;
 }
 
 User::User() {
@@ -78,7 +78,6 @@ User::User() {
     paymentInfo = PaymentInformation();
     shippingInfo = ShippingInformation();
     history = History();
-    deleted = false;
 }
 
 User::~User() {};
@@ -115,8 +114,24 @@ History User::getHistory() {
     return history;
 }
 
-void User::deleteUser() {
-    deleted = true;
+void User::sendToFile()
+{
+    ofstream file_obj;
+    file_obj.open("User.dat", ios::app);
+    file_obj << id << ",";
+    file_obj << name << ",";
+    file_obj << paymentInfo.getccnum() << ",";
+    file_obj << shippingInfo.getAddress() << ",";
+
+
+
+    int count = history.getHistory().size();
+    for (size_t i = 0; i < count; i++)
+    {
+        file_obj << history.getHistory()[i] << ",";
+    }
+    file_obj << "\n";
+    file_obj.close();
 }
 
 PaymentInformation::PaymentInformation(string ccNum) {
