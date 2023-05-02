@@ -174,8 +174,9 @@ vector<int> History::getHistory() {
 }
 void History::viewHistory() {
     cout << "User History: " << endl;
-    for (int i = 0; i <= history.size(); i++) {
-        cout << history.at(i) << " ";
+    int count = history.size();
+    for (int i = 0; i <= count; i++) {
+        cout << history[i] << "\n";
     }
-    cout << endl;
+
 }
