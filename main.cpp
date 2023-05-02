@@ -388,14 +388,21 @@ void saveUser() {
 void cartInformation() {
     cart.emptyCart();
     cart.setUser(user.getId());
+    bool check;
 
     for (size_t i = 0; i < listOfCarts.size(); i++)
     {
         if (listOfCarts[i].getUser() == user.getId())
         {
             cart = listOfCarts[i];
+            check = true;
         }
     }
+    if (!check)
+    {
+        listOfCarts.push_back(cart);
+    }
+    
     bool loop = true;
     while (loop)
     {
