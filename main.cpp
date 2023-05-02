@@ -41,18 +41,13 @@ void setItems() {
     string a, temp, word;
     vector<string> row;
     
-    int roll2 = 0;
     file_obj.open("Item.dat", ios::in);
-    while (file_obj >> temp) {
+    while (getline(file_obj, temp)) {
   
         row.clear();
   
-        // read an entire row and
-        // store it in a string variable 'line'
-        getline(file_obj, a);
-  
         // used for breaking words
-        stringstream s(a);
+        stringstream s(temp);
   
         // read every column data of a row and
         // store it in a string variable, 'word'
@@ -65,6 +60,7 @@ void setItems() {
   
         // convert string to integer for comparision
         Item item;
+        string x = row[0];
         item.setName(row[0]);
         item.setCategory(stoi(row[1]));
         item.setId(stoi(row[2]));
@@ -79,18 +75,13 @@ void setCarts() {
     string a, temp, word;
     vector<string> row;
     
-    int roll2 = 0;
     file_obj.open("Cart.dat", ios::in);
-    while (file_obj >> temp) {
+    while (getline(file_obj, temp)) {
   
         row.clear();
   
-        // read an entire row and
-        // store it in a string variable 'line'
-        getline(file_obj, a);
-  
         // used for breaking words
-        stringstream s(a);
+        stringstream s(temp);
   
         // read every column data of a row and
         // store it in a string variable, 'word'
@@ -104,7 +95,7 @@ void setCarts() {
         // convert string to integer for comparision
         Cart c;
         c.setUser(stoi(row[0]));
-        for (int i = 1; row.size(); i++)
+        for (int i = 1; i < row.size(); i++)
         {
             c.addToCart(stoi(row[i]));
         }
@@ -125,10 +116,9 @@ void setUsers() {
   
         // read an entire row and
         // store it in a string variable 'a'
-        getline(file_obj, a);
   
         // used for breaking words
-        stringstream s(a);
+        stringstream s(temp);
   
         // read every column data of a row and
         // store it in a string variable, 'word'
@@ -140,10 +130,11 @@ void setUsers() {
         }
   
         // convert string to integer for comparision
+        string str = row[2];
         PaymentInformation pi = PaymentInformation(row[2]);
         ShippingInformation si = ShippingInformation(row[3]);
         History h;
-        for (int i = 1; row.size(); i++)
+        for (int i = 4; i < row.size(); i++)
         {
             h.addItem(stoi(row[i]));
         }
@@ -246,6 +237,9 @@ void exitProgram() {
 }
 // After login:
 void afterLogin() {
+    bool loop = true;
+    while (loop)
+    {
     cout << "What would you like to do?\n";
     cout << "   1. User Information\n";
     cout << "   2. Cart Information\n";
@@ -273,6 +267,8 @@ void afterLogin() {
         cout << "Please choose an available option\n";
     }
 
+    }
+    
 }
 // ● User Information
 void userInformation() {
@@ -376,8 +372,8 @@ void deleteAccount() {
 // ○ Go back
 void saveUser() {
     remove("User.dat");
-
-    for (size_t i = 0; i < listOfUsers.size(); i++)
+    int count = listOfUsers.size();
+    for (size_t i = 0; i < count; i++)
     {
         if (user.getId() == listOfUsers[i].getId())
         {
@@ -391,6 +387,7 @@ void saveUser() {
 // ● Cart Information
 void cartInformation() {
     cart.emptyCart();
+    cart.setUser(user.getId());
 
     for (size_t i = 0; i < listOfCarts.size(); i++)
     {
@@ -440,9 +437,16 @@ void cartInformation() {
 // ○ View Cart
 void viewCart() {
     cout << "Here is your cart"<< endl;
-    for (size_t i = 0; i < cart.getItems().size(); i++)
+    for (size_t k = 0; k < cart.getItems().size(); k++)
     {
-        cout << cart.getItems()[i] << "\n";
+        int count = stock.size();
+        for (size_t i = 0; i < count; i++)
+        {
+            if (stock[i].getId() == cart.getItems()[k])
+                {
+                    cout << stock[i].getName() << "\n";
+                }   
+        }
     }
 }
 // ○ Remove Item from Cart
@@ -472,15 +476,16 @@ void checkout() {
 // ○ Go back
 void saveCart() {
     remove("Cart.dat");
+    int count = listOfCarts.size();
 
-    for (size_t i = 0; i < listOfUsers.size(); i++)
+    for (size_t i = 0; i < count; i++)
     {
-        if (user.getId() == listOfUsers[i].getId())
+        if (cart.getUser() == listOfCarts[i].getUser())
         {
-            listOfUsers[i] = user;
+            listOfCarts[i] = cart;
         }
         
-        listOfUsers[i].sendToFile();
+        listOfCarts[i].saveToFile();
     }
 }
 // ● History
@@ -512,12 +517,12 @@ void history() {
 // ○ View history
 void viewHistory() {
     user.getHistory().viewHistory();
+    saveUser();
 }
 // ○ Go back
 // ● Exit Program
 
 int main() {
-    cout << "swag";
     setUsers();
     setCarts();
     setItems();
