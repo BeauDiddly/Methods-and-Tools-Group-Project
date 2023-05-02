@@ -3,6 +3,7 @@ using namespace std;
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include "Cart.cpp"
 #include "Item.cpp"
 #include "Stock.cpp"
@@ -11,8 +12,8 @@ using namespace std;
 User user;
 Cart cart;
 vector<Cart> listOfCarts;
-Stock stock;
 vector<User> listOfUsers;
+vector<Item> stock;
 int choice;
 bool login();
 void createAccount();
@@ -31,6 +32,129 @@ void addItem();
 void checkout();
 void saveCart();
 void viewHistory();
+void setUsers();
+void setCarts();
+void setItems();
+
+void setItems() {
+    ifstream file_obj;
+    string a, temp, word;
+    vector<string> row;
+    
+    int roll2 = 0;
+    file_obj.open("Item.dat", ios::in);
+    while (file_obj >> temp) {
+  
+        row.clear();
+  
+        // read an entire row and
+        // store it in a string variable 'line'
+        getline(file_obj, a);
+  
+        // used for breaking words
+        stringstream s(a);
+  
+        // read every column data of a row and
+        // store it in a string variable, 'word'
+        while (getline(s, word, ',')) {
+  
+            // add all the column data
+            // of a row to a vector
+            row.push_back(word);
+        }
+  
+        // convert string to integer for comparision
+        Item item;
+        item.setName(row[0]);
+        item.setCategory(stoi(row[1]));
+        item.setId(stoi(row[2]));
+        item.setCount(stoi(row[3]));
+        stock.push_back(item);
+    }
+    file_obj.close();
+}
+
+void setCarts() {
+    ifstream file_obj;
+    string a, temp, word;
+    vector<string> row;
+    
+    int roll2 = 0;
+    file_obj.open("Cart.dat", ios::in);
+    while (file_obj >> temp) {
+  
+        row.clear();
+  
+        // read an entire row and
+        // store it in a string variable 'line'
+        getline(file_obj, a);
+  
+        // used for breaking words
+        stringstream s(a);
+  
+        // read every column data of a row and
+        // store it in a string variable, 'word'
+        while (getline(s, word, ',')) {
+  
+            // add all the column data
+            // of a row to a vector
+            row.push_back(word);
+        }
+  
+        // convert string to integer for comparision
+        Cart c;
+        c.setUser(stoi(row[0]));
+        for (int i = 1; row.size(); i++)
+        {
+            c.addToCart(stoi(row[i]));
+        }
+        listOfCarts.push_back(c);
+        
+    }
+    file_obj.close();
+}
+
+void setUsers() {
+    ifstream file_obj;
+    string a, temp, word;
+    vector<string> row;
+
+    file_obj.open("User.dat", ios::in);
+    while (getline(file_obj, temp)) {
+        row.clear();
+  
+        // read an entire row and
+        // store it in a string variable 'a'
+        getline(file_obj, a);
+  
+        // used for breaking words
+        stringstream s(a);
+  
+        // read every column data of a row and
+        // store it in a string variable, 'word'
+        while (getline(s, word, ',')) {
+  
+            // add all the column data
+            // of a row to a vector
+            row.push_back(word);
+        }
+  
+        // convert string to integer for comparision
+        PaymentInformation pi = PaymentInformation(row[2]);
+        ShippingInformation si = ShippingInformation(row[3]);
+        History h;
+        for (int i = 1; row.size(); i++)
+        {
+            h.addItem(stoi(row[i]));
+        }
+        
+
+        User b = User(stoi(row[0]), row[1], pi, si, h);
+        listOfUsers.push_back(b);
+        
+    }
+    file_obj.close();
+}
 // Before login:
 void beforeLogin() {
     bool loop = true;
@@ -43,14 +167,13 @@ void beforeLogin() {
         cin >> choice;
         if (choice == 1)
         {
-            login();
-            loop = false;
+            if (login()) {
+                loop = false;
+            }   
         }
         else if (choice == 2)
         {
             createAccount();
-            cout << "here" << endl;
-            loop = false;
         }
         else if (choice == 3)
         {
@@ -63,32 +186,23 @@ void beforeLogin() {
 }
 // ● Login
 bool login() {
+    setUsers();
     string inputUsername;
     cout << "What is your Name?" << endl;
+    cin.ignore();
     cin >> inputUsername;
-    // Object to read from file
-    ifstream file_obj;
-    // Opening file in input mode
-    file_obj.open("User.dat", ios::in);
-    // Object of class User to input data in file
-    User obj;
-    // Reading from file into object "obj"
-    file_obj.read((char*)&obj, sizeof(obj));
-    displayUserInfo(obj);
-  
-    while (!file_obj.eof()) {
-        // Assigning max ratings
-        if ((obj.getName() == inputUsername)) {
-            user = obj;
+    for (int i = 0; i < listOfUsers.size(); ++i)
+    {
+        if (listOfUsers[i].getName() == inputUsername)
+        {
+            user = listOfUsers[i];
             return true;
         }
-        // Checking further
-        file_obj.read((char*)&obj, sizeof(obj));
+        
     }
-    cout << "4" << endl;
-    file_obj.close();
+    
     cout << "That name doesn't exist\n";
-    exit(0);
+    return false;
 }
 // ● Create Account
 void createAccount() {
@@ -96,50 +210,35 @@ void createAccount() {
     int id, i;
     int prevIDs[100];
     cout << "What is your Name?" << endl;
-    cin >> inputUsername;
+    cin.ignore();
+    getline(cin, inputUsername);
     cout << "What is your credit card number?" << endl;
-    cin >> ccnum;
+    cin.ignore();
+    getline(cin, ccnum);
     cout << "What is your address?" << endl;
-    cin >> address;
-    ifstream file_obj;
-    // Opening file in input mode
-    file_obj.open("User.dat", ios::in);
-    // Object of class User to input data in file
-    User obj;
-    i = 0;
-    // Reading from file into object "obj"
-    file_obj.read((char*)&obj, sizeof(obj));
-    while (!file_obj.eof()) {
-        // Assigning max ratings
-        prevIDs[i] = obj.getId();
-        // Checking further
-        file_obj.read((char*)&obj, sizeof(obj));
-        i++;
-    }
-    file_obj.close();
-    srand (time(NULL));
-    bool check = true;
-    while (check)
-    {    
-        check = false;
+    cin.ignore();
+    getline(cin, address);
+    user.setName(inputUsername);
+    PaymentInformation a = PaymentInformation(ccnum);
+    user.setPaymentInfo(a);
+    ShippingInformation b = ShippingInformation(address);
+    user.setShippingInfo(b);
+    bool loop = true;
+    while (loop)
+    {
+        loop = false;
+        srand(time(NULL));
         id = rand();
-        for (int j : prevIDs)
+        for (size_t i = 0; i < listOfUsers.size(); i++)
         {
-            if (id == j)
+            if (listOfUsers[i].getId() == id)
             {
-                check = true;
+                loop = true;
             }
         }
-    }   
-    cout << id << endl;
-    User newUser = User(id, inputUsername, PaymentInformation(ccnum), ShippingInformation(address), History());
-    ofstream file_obj2;
-    file_obj2.open("User.dat", ios::app);
-    file_obj2.write((char*)&newUser, sizeof(newUser));
-    file_obj2.close();
-    user = newUser;
-    displayUserInfo(user);
-    exit(0);
+    }  
+    user.setId(id);
+    user.sendToFile();
 }
 // ● Exit Program
 void exitProgram() {
@@ -147,39 +246,6 @@ void exitProgram() {
 }
 // After login:
 void afterLogin() {
-    ifstream file_obj;
-    // Opening file in input mode
-    file_obj.open("User.dat", ios::in);
-    // Object of class User to input data in file
-    User obj;
-    // Reading from file into object "obj"
-    file_obj.read((char*)&obj, sizeof(obj));
-    while (!file_obj.eof()) {
-        // Assigning max ratings
-        listOfUsers.insert(listOfUsers.end(), obj);
-        // Checking further
-        file_obj.read((char*)&obj, sizeof(obj));
-    }
-    file_obj.close();
-
-    file_obj.open("Cart.dat", ios::in);
-    // Object of class User to input data in file
-    // Reading from file into object "obj"
-    file_obj.read((char*)&cart, sizeof(cart));
-    while (!file_obj.eof()) {
-        // Assigning max ratings
-        listOfCarts.insert(listOfCarts.end(), cart);
-        // Checking further
-        file_obj.read((char*)&cart, sizeof(cart));
-    }
-    file_obj.close();
-
-    file_obj.open("Stock.dat", ios::in);
-    // Object of class User to input data in file
-    
-    // Reading from file into object "obj"
-    file_obj.read((char*)&stock, sizeof(stock));
-    file_obj.close();
     cout << "What would you like to do?\n";
     cout << "   1. User Information\n";
     cout << "   2. Cart Information\n";
@@ -239,8 +305,8 @@ void userInformation() {
         }
         else if (choice == 5)
         {
-            cout << "You are now exiting the program";
-            exit(0);
+            saveUser();
+            loop = false;
         }
         else {
             cout << "Please choose an available option\n";
@@ -264,15 +330,36 @@ void displayUserInfo(User usr) {
 void editShippingInfo() {
     string address;
     cout << "What is your address?" << endl;
-    cin >> address;
-    user.setShippingInfo(address);
+    cin.ignore();
+    getline(cin, address);
+    ShippingInformation si = ShippingInformation(address);
+    user.setShippingInfo(si);
+    for (size_t i = 0; i < listOfUsers.size(); i++)
+    {
+        if (listOfUsers[i].getId() == user.getId())
+        {
+            listOfUsers[i] = user;
+        } 
+    }
+    saveUser();
+
 }
 // ○ Edit payment info
 void editPaymentInfo() {
     string ccnum;
     cout << "What is your credit card number?" << endl;
     cin >> ccnum;
-    user.setPaymentInfo(ccnum);
+    PaymentInformation pi = PaymentInformation(ccnum);
+    user.setPaymentInfo(pi);
+    for (size_t i = 0; i < listOfUsers.size(); i++)
+    {
+        if (listOfUsers[i].getId() == user.getId())
+        {
+            listOfUsers[i] = user;
+        } 
+    }
+    saveUser();
+
 }
 // ○ Delete account
 void deleteAccount() {
@@ -283,46 +370,38 @@ void deleteAccount() {
         {
             listOfUsers.erase(listOfUsers.begin()+i);
         }      
-    }    
+    }
+    cout << "Your account has been deleted and the program will end\n";    
 }
 // ○ Go back
 void saveUser() {
     remove("User.dat");
-    ofstream file_obj("User.dat");
-    file_obj.open("User.dat", ios::app);
-    for (size_t i = 0; i < listOfCarts.size(); i++)
+
+    for (size_t i = 0; i < listOfUsers.size(); i++)
     {
-        file_obj.write((char*)&listOfUsers[i], sizeof(listOfUsers[i]));
+        if (user.getId() == listOfUsers[i].getId())
+        {
+            listOfUsers[i] = user;
+        }
+        
+        listOfUsers[i].sendToFile();
     }
-    file_obj.close();
+
 }
 // ● Cart Information
 void cartInformation() {
-    bool loop = true;
-    ifstream file_obj;
-    // Opening file in input mode
-    file_obj.open("Cart.dat", ios::in);
-    // Object of class User to input data in file
-    Cart obj;
-    // Reading from file into object "obj"
-    file_obj.read((char*)&obj, sizeof(obj));
-    while (!file_obj.eof()) {
-        if (obj.getUser() == user.getId())
+    cart.emptyCart();
+
+    for (size_t i = 0; i < listOfCarts.size(); i++)
+    {
+        if (listOfCarts[i].getUser() == user.getId())
         {
-            break;
-        } 
+            cart = listOfCarts[i];
+        }
     }
-    cart = obj;
-    file_obj.close();
+    bool loop = true;
     while (loop)
     {
-        for (size_t i = 0; i < listOfCarts.size(); i++)
-        {
-            if (listOfCarts[i].getUser() == user.getId())
-            {
-                listOfCarts[i] = cart;
-            }
-        }
         
         int choice;
         cout << "What would you like to do?\n";
@@ -385,20 +464,24 @@ void checkout() {
     History x = user.getHistory();
     for (size_t i = 0; i < cart.getItems().size(); i++)
     {
-        x.addItem(cart.getItems()[i]);
+        x.addItem(cart.getItems()[i]);  
     }
+    cart.emptyCart();
     user.setHistory(x);
 }
 // ○ Go back
 void saveCart() {
     remove("Cart.dat");
-    ofstream file_obj("Cart.dat");
-    file_obj.open("Cart.dat", ios::app);
-    for (size_t i = 0; i < listOfCarts.size(); i++)
+
+    for (size_t i = 0; i < listOfUsers.size(); i++)
     {
-        file_obj.write((char*)&listOfCarts[i], sizeof(listOfCarts[i]));
+        if (user.getId() == listOfUsers[i].getId())
+        {
+            listOfUsers[i] = user;
+        }
+        
+        listOfUsers[i].sendToFile();
     }
-    file_obj.close();
 }
 // ● History
 void history() {
@@ -434,6 +517,10 @@ void viewHistory() {
 // ● Exit Program
 
 int main() {
+    cout << "swag";
+    setUsers();
+    setCarts();
+    setItems();
     beforeLogin();
     afterLogin();
 }
